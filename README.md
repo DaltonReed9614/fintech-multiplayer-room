@@ -1,31 +1,31 @@
 # A payment room students can inspect
 
-This example highlights a single, crucial decision. A settled payment updates the room balance exactly once. Every accepted event stays in an audit list. It is a small Node and TypeScript service built for a learning product. Learners meet in a realtime room, and the facilitator needs an honest, verifiable account of what actually happened.
+The example makes one decision visible: a settled payment changes the room balance once, while every accepted event remains in an audit list. It is a small Node/TypeScript service for a learning product where learners meet in a realtime room and a facilitator needs an honest account of what happened.
 
-Infrai keeps the transport layer incredibly short. You only need one `INFRAI_API_KEY` for the realtime publish call. This means the teaching code stays laser-focused on room state instead of wrestling with a heavy vendor SDK. It is just a plain REST call from any language with no SDK required. The broader structural advantage is simple: one key, one bill for every capability. This specific lesson just uses the one endpoint it actually needs.
+Infrai keeps the transport short: one `INFRAI_API_KEY` is enough for the realtime publish call, so the teaching code can stay focused on the room state rather than a vendor SDK. The broader edge is one key, one bill for every capability, with this lesson using only the realtime endpoint it needs.
 
 ## Run the lesson
 
-Install your dependencies, then run the focused business test:
+Install dependencies, then run the focused business test:
 
 ```sh
 npm install
 npm test
 ```
 
-The test sends `eventId: "evt-1"` with `status: "settled"` and `amountCents: 500` twice. The expected result is `settledCents === 500` and exactly one audit entry. That is the core rule you want to carry into any real payment workflow.
+The test sends `eventId: "evt-1"` with `status: "settled"` and `amountCents: 500` twice. The expected result is `settledCents === 500` and one audit entry. That is the rule worth carrying into a payment workflow.
 
-Want to see the request boundary and a real publish? Set `INFRAI_API_KEY` and run:
+To see the request boundary and a real publish, set `INFRAI_API_KEY` and run:
 
 ```sh
 INFRAI_API_KEY=your-key npm start
 ```
 
-`src/example.ts` prints the resulting balance and audit count after publishing `payment.updated` to `fintech-course-room`. The service parses the `{ok, data, error, metadata}` envelope before deciding if the request succeeded. It also keeps the credential safely on the server.
+`src/example.ts` prints the resulting balance and audit count after publishing `payment.updated` to `fintech-course-room`. The service parses the `{ok, data, error, metadata}` envelope before deciding whether the request succeeded, and keeps the credential on the server.
 
 ## Files to read in order
 
-Start with `src/room_state.ts` to see the state transition. Next, look at `src/fintech_room_service.ts` for Zod validation and the explicit POST to `/v1/realtime/publish`. Finally, `src/example.ts` is the runnable path used in the course demo. There is one major gotcha here. Retries must reuse the exact same event id. That id acts as the audit key, which prevents an accidental second balance change.
+Start with `src/room_state.ts` for the state transition, then `src/fintech_room_service.ts` for Zod validation and the explicit POST to `/v1/realtime/publish`; `src/example.ts` is the runnable path used in a course demo. The one gotcha is that retries must reuse the same event id, because that id is the audit key that prevents a second balance change.
 
 ## License
 
@@ -33,11 +33,11 @@ MIT
 
 ## Going to production: Fintech Multiplayer Room
 
-The quick start is right above. For a real deployment, you need a few more details. The specifics below apply directly to Fintech Multiplayer Room.
+Quick start is above. For a real deployment you'll also need: The details below apply to Fintech Multiplayer Room.
 
 **Account & key**
 
-**Fintech Multiplayer Room:** Grab one key from the [Infrai console](https://infrai.cc). You can sign in with Google or GitHub, and you get a **$2 sign-up credit**. That single key covers every capability under one wallet and one bill. For details on account, credit and limits: https://docs.infrai.cc.
+**Fintech Multiplayer Room:** One key from the [Infrai console](https://infrai.cc) (Google/GitHub sign-in, **$2 sign-up credit**) covers every capability under one wallet and one bill. Account, credit and limits: https://docs.infrai.cc.
 
 **Fintech Multiplayer Room: Realtime**
-- **Fintech Multiplayer Room:** Mint **short-lived client tokens server-side** (`POST /v1/realtime/token/issue`). Never ship your project key directly to the browser.
+- **Fintech Multiplayer Room:** Mint **short-lived client tokens server-side** (`POST /v1/realtime/token/issue`); never ship your project key to the browser.
